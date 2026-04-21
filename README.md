@@ -14,7 +14,7 @@ FATS is an Applicant Tracking System that scores *jobs* for fit to **you**, not 
 
 Built for people doing this with three weeks of severance, on lunch breaks, at 11pm after the kids are asleep. No auto-apply bots — you still decide where to send it. No fabricated experience — their filter sniffs that out in interviews.
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/pawelsloboda5/fats/releases)
+[![Version](https://img.shields.io/badge/version-1.1.1-blue)](https://github.com/pawelsloboda5/fats/releases)
 [![License: PolyForm NC 1.0.0](https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-orange.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0/)
 [![Claude](https://img.shields.io/badge/Claude-Pro%20%7C%20Max%20%7C%20Team-6B5ED7)](https://claude.ai)
 
@@ -123,7 +123,7 @@ Six stages, one conversation. Each stage produces something concrete — a profi
 | Command | What it does |
 |---|---|
 | `/fats` | Start a new hunt, or pick up where you left off |
-| `/fats-healthcheck` | 12-check self-test. Run this first on a fresh install (3 seconds). |
+| `/fats-healthcheck` | 13-check self-test. Run this first on a fresh install (3 seconds). |
 | `/fats-new-hunt` | Skip ingest, use your existing profile to find fresh jobs |
 | `/fats-profile` | View or edit your stored profile |
 | `/fats-settings` | Change filters — location, salary floor, boards, freshness, etc. |
@@ -161,12 +161,12 @@ fats/
 │   ├── jobs.py                      # Dedupe, scoring, ghost detection, CSV
 │   ├── resume.py                    # 3 templates + docx→pdf + fabrication_check
 │   ├── company_seed.py              # Filter/plan hunt companies
-│   └── healthcheck.py               # 12-check self-test for /fats-healthcheck
+│   └── healthcheck.py               # 13-check self-test for /fats-healthcheck
 ├── assets/
 │   ├── profile_schema.json          # JSON schema for profiles
 │   ├── settings_defaults.json       # Factory defaults
 │   └── company_list_seed.json       # 187 seed companies across 5 ATSes
-└── tests/                           # 141 pytest tests across 7 files
+└── tests/                           # 150 pytest tests across 8 files
 ```
 
 The Python scripts are **pure parsers and renderers** — all network fetching happens through Claude's built-in `web_fetch` tool, not Python. This keeps the skill portable across Claude.ai, Claude Code, and API deployments.
@@ -186,7 +186,7 @@ pip install pytest python-docx reportlab
 python3 -m pytest tests/ -v
 ```
 
-Expected output: 12/12 health checks pass, 141/141 pytest tests pass.
+Expected output: 13/13 health checks pass, 150/150 pytest tests pass.
 
 ## Roadmap
 

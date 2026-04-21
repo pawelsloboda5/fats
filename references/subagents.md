@@ -126,21 +126,23 @@ Be honest about these numbers in progress updates. If the user picked 5 jobs on 
 Once per fresh hunt, immediately after Stage 1 (Profile ingest) completes and before Stage 2 (Role proposal) begins, ask the user:
 
 > Pick a Quality Mode for this hunt:
-> **1. Fast** (default) — search: haiku, resume: sonnet. Cheapest, fastest, solid quality.
-> **2. Balanced** — search: sonnet, resume: sonnet. Smarter search filtering, same resume quality as Fast.
-> **3. Premium** — search: sonnet, resume: opus. Best resume craft; materially more expensive per tailor.
+> **1. Fast** — orchestrator: sonnet, search: haiku, resume: sonnet. Cheap + quick.
+> **2. Balanced** (default) — orchestrator: opus, search: haiku, resume: sonnet. Smart router, fast workers.
+> **3. Premium** — orchestrator: opus, search: sonnet, resume: opus. Max quality end-to-end.
 > **4. Keep my saved settings** — use whatever `models.*` already holds.
 
 Mapping:
 
-| Preset   | `models.search_agent` | `models.resume_agent` |
-|----------|-----------------------|-----------------------|
-| Fast     | `haiku`               | `sonnet`              |
-| Balanced | `sonnet`              | `sonnet`              |
-| Premium  | `sonnet`              | `opus`                |
-| Keep saved | (no change)         | (no change)           |
+| Preset   | `models.orchestrator` | `models.search_agent` | `models.resume_agent` |
+|----------|-----------------------|-----------------------|-----------------------|
+| Fast     | `sonnet`              | `haiku`               | `sonnet`              |
+| Balanced (default) | `opus`      | `haiku`               | `sonnet`              |
+| Premium  | `opus`                | `sonnet`              | `opus`                |
+| Keep saved | (no change)         | (no change)           | (no change)           |
 
 Apply the pick to the in-memory settings object for this hunt. Do **not** write back to `fats-settings.json` unless the user also says "and save this as my default". Power users override per-stage via `/fats-settings`; the preset is a one-shot convenience, not a settings-writer.
+
+The orchestrator tier in the preset is documentary on claude.ai (the browser session's model is set by the user's Claude plan + model picker, not by the skill). On Claude Code, if the user picks Balanced or Premium and the current session isn't already on opus, suggest they run `/model opus` before continuing — don't block, just surface the mismatch once. See `references/settings.md` `models.orchestrator` for the full caveats.
 
 Fire this question exactly once per hunt. If the user is resuming a mid-pipeline hunt, skip the preset — they already picked one at the start.
 

@@ -4,6 +4,14 @@ All notable changes to FATS are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project uses [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] — 2026-04-20
+
+### Fixed
+- **Quality Mode preset drift.** `references/subagents.md` described the wrong Fast/Balanced/Premium mappings (Fast-as-default, Balanced bumping search to sonnet, orchestrator tier omitted). Realigned to match SKILL.md and the v1.1.0 directive — Balanced is the default (orchestrator opus, search haiku, resume sonnet), Fast downgrades the orchestrator to sonnet, Premium goes opus end-to-end with sonnet search. Added the on-runtime caveat that orchestrator tier is documentary on claude.ai.
+- `README.md` healthcheck count corrected to 13 checks (was 12) and pytest count to 150 across 8 files (was 141 across 7).
+- `CHANGELOG.md` "Planned" section renumbered: 1.1.0 is released, so pending roadmap items now roll up under 1.2.0.
+- `CHANGELOG.md [1.1.0] Unchanged` line corrected — 145 previous tests + 5 new settings tests = 150 total (previously claimed 145).
+
 ## [1.1.0] — 2026-04-20
 
 ### Added
@@ -21,7 +29,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - `references/settings.md` documents the new `models.*` and `concurrency.*` keys with cost and throttle notes.
 
 ### Unchanged
-- PolyForm Noncommercial 1.0.0 license. No behavior changes in never-fabricate doctrine, fit scoring, ghost-job detection, or CSV schema. All 145 existing pytest tests still apply.
+- PolyForm Noncommercial 1.0.0 license. No behavior changes in never-fabricate doctrine, fit scoring, ghost-job detection, or CSV schema. All 145 previous pytest tests still apply; v1.1.0 adds 5 new tests for the three-tier settings keys (150 total).
 
 ## [1.0.0] — 2026-04-21
 
@@ -74,12 +82,10 @@ First public release.
 
 ## Planned
 
-### [1.1.0] — next minor
+### [1.2.0] — next minor
 - Cover letter companion flow
 - Expanded company seed list (target: 500+ across ATSes)
 - Persistent hunt history across sessions for stronger ghost detection
-
-### [1.2.0]
 - JobSpy integration for direct Indeed/LinkedIn scraping (Claude Code only)
 - Per-role company seed overrides in settings
 

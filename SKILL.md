@@ -1,7 +1,7 @@
 ---
 name: fats
 metadata:
-  version: "1.1.0"
+  version: "1.1.1"
 description: "End-to-end job search assistant. Trigger whenever the user mentions job searching, looking for a job, career pivot, tailoring a resume to a posting, making an ATS-ready resume, finding roles that match their background, or types a /fats command (including /fats, /fats-help, /fats-start, /fats-settings, /fats-profile, /fats-new-hunt, /fats-status, /fats-healthcheck, /fats-reset). Also trigger for natural phrasings like 'help me find a job', 'switch careers', 'find jobs posted today', 'match me to roles', 'tailor my resume', 'generate an ATS-passing resume', 'search faster', 'run jobs in parallel', 'what can fats do', or whenever the user uploads a resume and asks what to do next. Use this even when the user doesn't name the skill — any end-to-end flow from a user's background to tailored resumes for live postings belongs here. Do not use for one-off cover letter writing, generic career advice, or interview prep."
 license: "PolyForm-Noncommercial-1.0.0"
 ---
