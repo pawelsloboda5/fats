@@ -24,5 +24,14 @@
   "resume_template": "clean_modern",
   "auto_retry_on_failure": false,
   "ghost_risk_accept": ["low", "medium"],
+  "models": {
+    "orchestrator": "opus",
+    "search_agent": "haiku",
+    "resume_agent": "sonnet"
+  },
+  "concurrency": {
+    "search_agents": 5,
+    "resume_agents": 5
+  },
   "last_updated": null
 }

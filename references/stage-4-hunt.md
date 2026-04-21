@@ -6,6 +6,32 @@ Execute the approved search plan. Fetch postings from every enabled source, norm
 
 Output: `fats-hunt-raw.json` — an array of job records (pre-dedupe, pre-score). Ranking, dedup, and CSV generation happen in Stage 5.
 
+## Parallel dispatch
+
+Three-tier architecture — Opus orchestrator (this Claude), plus N=5 search subagents (default Haiku) that fan out across ATS sources. See `references/subagents.md` for runtime mechanics.
+
+The hunt fans out across 6 sources. Running them serially takes ~3 minutes; running them in parallel shaves it to ~30-60 seconds. See `references/subagents.md` for runtime detection and dispatch mechanics — this section just covers what Stage 4 specifically dispatches.
+
+**Defaults (from `assets/settings_defaults.json`):**
+- `settings.models.search_agent` — default `haiku`
+- `settings.concurrency.search_agents` — default `5`
+
+**Quality Mode context:** if the user picked **Fast** in the Quality Mode preset, this stage uses haiku (cheap, quick, good enough for feed parsing and title filtering). **Balanced** and **Premium** both bump search to sonnet (sharper on niche roles, ambiguous titles, and unusual aliases). The orchestrator passes the chosen model into each subagent call.
+
+**Claude Code path (Task tool available):** spawn 5 subagents, one per dispatch unit. The 6 sources collapse into 5 because the two smallest-yield feeds combine cleanly:
+
+1. Greenhouse (high-yield, dedicated subagent)
+2. Lever (high-yield, dedicated subagent)
+3. Ashby (dedicated subagent)
+4. Workable + SmartRecruiters (combined — both low-yield, same pattern)
+5. Google Jobs (high-yield, dedicated subagent)
+
+Each subagent gets: the filtered company list for its source(s), the role_constraints, freshness window, the normalized schema, and writes its slice of results back to a shared `fats-hunt-raw.json` or returns records for the orchestrator to merge.
+
+**claude.ai fallback (no Task tool):** issue 6 parallel `web_fetch` tool_use calls in a SINGLE assistant turn — one per source. Don't serialize them across turns. Parse and filter on the next turn once all responses return. This gets most of the speed benefit without real subagents.
+
+**User-facing speed note:** parallel dispatch takes Stage 4 from ~3 min serial to ~30-60 sec. Mention this in the progress message so users know why it's fast.
+
 ## Source-by-source playbook
 
 ### Public ATS feeds (the free, legal, clean path)

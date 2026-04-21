@@ -4,6 +4,25 @@ All notable changes to FATS are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project uses [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] — 2026-04-20
+
+### Added
+- **Three-tier model architecture.** Main orchestrator (default Opus) + 5 parallel search subagents (default Haiku) + 5 parallel resume subagents (default Sonnet). All three tiers configurable via `/fats-settings`.
+- **Parallel subagent dispatch for Stage 4 (Hunt) and Stage 6 (Tailor)** in Claude Code — 5 concurrent subagents with per-call model selection. Default: Haiku for search, Sonnet for resumes.
+- **Parallel tool-call fallback** in claude.ai browser — Stage 4 fans out as 6 concurrent `web_fetch` calls in one turn; Stage 6 keeps per-job generation serial but parallelizes rendering within a job.
+- **Quality Mode preset** asked once at fresh-hunt start — **Balanced is now the default** (orchestrator opus, search haiku, resume sonnet). Options: Fast (orchestrator sonnet, search haiku, resume sonnet) / Balanced (default — orchestrator opus, search haiku, resume sonnet) / Premium (orchestrator opus, search sonnet, resume opus) / keep saved settings. Applies in-memory for the session unless the user saves it as default.
+- New settings keys: `models.orchestrator` (default opus), `models.search_agent` (default haiku), `models.resume_agent` (default sonnet) — all enum `haiku` | `sonnet` | `opus`. Plus `concurrency.search_agents`, `concurrency.resume_agents` (integer 1–8).
+- New playbook: `references/subagents.md` — authoritative reference for the three-tier architecture, runtime detection (Claude Code vs claude.ai), and parallel dispatch mechanics for both runtimes.
+
+### Changed
+- `README.md` install section moved to prominent position directly after the hero; browser (claude.ai) path listed first, Claude Code paths second and third.
+- `SKILL.md` metadata.version → 1.1.0. Added Quality Mode prompt section. Description trigger phrases lightly extended to cover speed/parallel queries.
+- `references/stage-4-hunt.md` and `references/stage-6-tailor.md` now point to `subagents.md` for dispatch mechanics and Quality-Mode-aware model selection.
+- `references/settings.md` documents the new `models.*` and `concurrency.*` keys with cost and throttle notes.
+
+### Unchanged
+- PolyForm Noncommercial 1.0.0 license. No behavior changes in never-fabricate doctrine, fit scoring, ghost-job detection, or CSV schema. All 145 existing pytest tests still apply.
+
 ## [1.0.0] — 2026-04-21
 
 First public release.

@@ -1,8 +1,8 @@
 ---
 name: fats
 metadata:
-  version: "1.0.0"
-description: "End-to-end job search assistant. Trigger whenever the user mentions job searching, looking for a job, career pivot, tailoring a resume to a posting, making an ATS-ready resume, finding roles that match their background, or types a /fats command (including /fats, /fats-help, /fats-start, /fats-settings, /fats-profile, /fats-new-hunt, /fats-status, /fats-healthcheck, /fats-reset). Also trigger for natural phrasings like 'help me find a job', 'switch careers', 'find jobs posted today', 'match me to roles', 'tailor my resume', 'generate an ATS-passing resume', 'what can fats do', or whenever the user uploads a resume and asks what to do next. Use this even when the user doesn't name the skill — any end-to-end flow from a user's background to tailored resumes for live postings belongs here. Do not use for one-off cover letter writing, generic career advice, or interview prep."
+  version: "1.1.0"
+description: "End-to-end job search assistant. Trigger whenever the user mentions job searching, looking for a job, career pivot, tailoring a resume to a posting, making an ATS-ready resume, finding roles that match their background, or types a /fats command (including /fats, /fats-help, /fats-start, /fats-settings, /fats-profile, /fats-new-hunt, /fats-status, /fats-healthcheck, /fats-reset). Also trigger for natural phrasings like 'help me find a job', 'switch careers', 'find jobs posted today', 'match me to roles', 'tailor my resume', 'generate an ATS-passing resume', 'search faster', 'run jobs in parallel', 'what can fats do', or whenever the user uploads a resume and asks what to do next. Use this even when the user doesn't name the skill — any end-to-end flow from a user's background to tailored resumes for live postings belongs here. Do not use for one-off cover letter writing, generic career advice, or interview prep."
 license: "PolyForm-Noncommercial-1.0.0"
 ---
 
@@ -61,6 +61,29 @@ Stages are gated: never run stage N until stage N-1's artifact exists and the us
 
 If the user doesn't type a slash command and just sends a natural message, infer their intent and route to the right stage. When in doubt, ask.
 
+## Quality Mode — asked once per fresh hunt
+
+Right after Stage 1 (Profile) completes and before offering Stage 2 (Roles), the orchestrator asks one question:
+
+```
+Before we search — what quality/speed mode?
+
+• Fast — orchestrator sonnet, search haiku, resume sonnet. Cheap + quick.
+• Balanced (default) — orchestrator opus, search haiku, resume sonnet. Smart router, fast workers.
+• Premium — orchestrator opus, search sonnet, resume opus. Max quality end-to-end.
+• Keep my saved settings.
+```
+
+Use `ask_user_input_v0` for the tappable choice if the runtime offers it.
+
+Notes for Claude (the orchestrator):
+
+- The preset applies in-memory for this hunt only. It does NOT overwrite `settings.models.*` on disk unless the user also says "save as default."
+- `/fats-settings` is where users change their persistent defaults (including `models.orchestrator`, `models.search_agent`, `models.resume_agent`, `concurrency.search_agents`, `concurrency.resume_agents`).
+- `models.orchestrator` is a recommendation, not a hard control. On **claude.ai** the orchestrator model is set by the user's Claude plan + model picker for the browser session — the skill can't override it, so Fast/Balanced/Premium orchestrator tiers are documentary only on that runtime. On **Claude Code**, if the user picks Balanced or Premium and the current session is not already on opus, suggest they run `/model opus` before continuing (don't block — they may choose to keep their current model; just surface the mismatch once).
+- For returning users who resume mid-pipeline (Stage 3+), do NOT re-ask — they already have a mode from their earlier session or their saved settings.
+- See `references/subagents.md` for the three-tier architecture and dispatch mechanics once the mode is chosen.
+
 ## Non-technical user doctrine
 
 A lot of the people using FATS aren't developers. A plumber pivoting into HVAC sales, a teacher switching to instructional design, a new grad fighting for a first seat at the table. FATS talks like they talk. Three rules:
@@ -114,6 +137,7 @@ Cross-cutting references (consult as needed, don't pre-load):
 - `references/resume-templates.md` — the three ATS-safe templates
 - `references/settings.md` — what `/fats-settings` controls
 - `references/never-fabricate.md` — the tailoring line
+- `references/subagents.md` — parallel dispatch playbook (Stages 4 + 6)
 
 Scripts in `scripts/` are called from the stages that need them. Don't read them pre-emptively — call them when the stage says to.
 

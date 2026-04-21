@@ -32,6 +32,16 @@ A user can run `/fats-settings` at any time to view and change the filters FATS 
   "auto_retry_on_failure": false,
   "ghost_risk_accept": ["low", "medium"],
 
+  "models": {
+    "orchestrator": "opus",
+    "search_agent": "haiku",
+    "resume_agent": "sonnet"
+  },
+  "concurrency": {
+    "search_agents": 5,
+    "resume_agents": 5
+  },
+
   "last_updated": "ISO timestamp"
 }
 ```
@@ -114,6 +124,60 @@ If user's preference includes remote, also capture which remote regions they acc
 - `"Remote - Global"` / `"Remote - Worldwide"`
 
 If a job is posted as "Remote - Europe" and user only accepts "Remote - US", the job is filtered out.
+
+## Model selection (`models`)
+
+`models.orchestrator`, `models.search_agent`, and `models.resume_agent` name the three tiers of the FATS model stack. The orchestrator tier is the top-level Claude that reads SKILL.md and routes the 6 stages; the other two tiers drive the parallel subagents dispatched in Stage 4 (Hunt) and Stage 6 (Tailor). The orchestrator reads all three values before fan-out and passes the worker tiers through to each subagent call. The full dispatch mechanics live in `references/subagents.md`; this section only covers the user-facing settings surface.
+
+### `models.orchestrator`
+
+- **Controls**: which Claude model runs the top-level FATS orchestrator — the Claude that reads SKILL.md, routes between the 6 stages, aggregates subagent results, and enforces the never-fabricate doctrine.
+- **Valid values**: `"haiku"`, `"sonnet"`, `"opus"`.
+- **Default**: `"opus"`.
+- **Honest caveats — this is a declared preference, not a hard control.** On **claude.ai** browser skills, the orchestrator model is whatever the user's Claude plan + model picker says it is for that chat. The skill cannot override the browser session's model; `models.orchestrator` here is a documentary recommendation only. On **Claude Code**, the user sets the orchestrator model via `/model <name>` *before* starting the /fats session. The skill can suggest ("for Balanced or Premium, run `/model opus` before /fats") but again cannot force it mid-session. We keep the key in settings because (a) Quality Mode presets reference it, (b) it signals intent clearly to returning users, and (c) future Agent SDK or skill runtime versions may expose programmatic orchestrator control — at which point this value becomes authoritative without a schema change.
+- **Cost/latency note**: Opus orchestrator is slower per turn and pricier than Sonnet, but stage-gating, ambiguous-signal handling, and fabrication policing noticeably improve on complex profiles (multi-industry career pivots, senior/exec roles, messy uploaded artifacts). Resume quality compounds when the router is smart — a well-routed Sonnet resume subagent beats a poorly routed Opus one. Downgrade to Sonnet (Fast mode) for straightforward hunts where the router's job is mostly sequencing; stay on Opus (Balanced / Premium) when any stage might need judgment the worker tiers can't provide.
+
+### `models.search_agent`
+
+- **Controls**: which model runs the per-source search subagent in Stage 4 (one subagent per ATS feed or query slice).
+- **Valid values**: `"haiku"`, `"sonnet"`, `"opus"`.
+- **Default**: `"haiku"`.
+- **When to change**: search-agent work is mostly JD extraction, freshness filtering, and light normalization — a small-context, pattern-matching task. Haiku handles it cleanly and is the fastest and cheapest tier. Upgrade to Sonnet if the user is hunting in a niche where role-title matching needs more judgment (e.g., atypical industry vocabulary, multilingual postings). Opus is almost never justified here; the search agent's ceiling is set by input quality, not model smarts.
+
+### `models.resume_agent`
+
+- **Controls**: which model runs the per-job tailoring subagent in Stage 6. That's keyword extraction, bullet reframing, summary writing, and the fabrication self-check.
+- **Valid values**: `"haiku"`, `"sonnet"`, `"opus"`.
+- **Default**: `"sonnet"`.
+- **When to change**: downgrade to Haiku only for mass low-stakes hunts (e.g., exploratory batch of 20+ jobs where the user is screening, not committing). Upgrade to Opus when the user is applying to a short list of high-priority roles and wants the tightest possible bullet reframing and summary craft.
+
+### Cost implications
+
+Per-token pricing follows `haiku < sonnet < opus`, and the gap is not small — Opus is materially more expensive per token than Sonnet, which is materially more expensive than Haiku. Concrete implication: switching `resume_agent` from `"sonnet"` to `"opus"` for a 10-job tailor batch is the biggest cost lever in FATS. It's still a reasonable choice for a final top-3 polish pass, but the user should know they're opting into premium pricing. Orchestrator surfaces a confirmation prompt when `resume_agent == "opus"` and the tailor queue is larger than 10 jobs — see `references/subagents.md` "Cost guardrails".
+
+Exact prices drift; don't quote dollar figures. Quote the order of magnitude and let the user decide.
+
+## Concurrency (`concurrency`)
+
+`concurrency.search_agents` and `concurrency.resume_agents` cap how many subagents run in parallel during Stage 4 and Stage 6 respectively. On Claude Code the orchestrator dispatches real subagents up to this cap; on claude.ai it caps the number of concurrent `web_fetch` / rendering tool calls issued in a single assistant turn.
+
+### `concurrency.search_agents`
+
+- **Controls**: max parallel search subagents (Claude Code) or parallel `web_fetch` calls per turn (claude.ai) during Stage 4.
+- **Valid values**: integers 1–8 inclusive.
+- **Default**: `5`.
+- **When to change**: drop to `3` if the user sees API rate-limit errors ("429" or "throttled") during hunts. Raise to `6`–`8` only if the user is on a high-tier API plan and wants all 6 ATS sources running in fully separate subagents with room to spare.
+
+### `concurrency.resume_agents`
+
+- **Controls**: max parallel resume subagents during Stage 6 (Claude Code path only — on claude.ai, Stage 6 processes jobs serially regardless of this value; see `references/subagents.md`).
+- **Valid values**: integers 1–8 inclusive.
+- **Default**: `5`.
+- **When to change**: drop to `2`–`3` for large batches to avoid rate limits if `resume_agent` is set to Sonnet or Opus. Raise above `5` only if the user is tailoring many jobs on a high-tier plan and has confirmed no throttling.
+
+### Cost implications
+
+Concurrency itself doesn't change cost per job — 10 jobs tailored with concurrency=1 and concurrency=5 cost the same in tokens. It only changes wall-clock time. Cost is driven by `models.*` and by how many jobs the user chose to tailor. The concurrency knob is purely a speed-vs-throttling tradeoff.
 
 ## Persistence
 

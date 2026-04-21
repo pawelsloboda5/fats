@@ -10,6 +10,37 @@ For each selected job, produce a tailored `.docx` and `.pdf` resume that:
 
 Output: one `.docx` and one `.pdf` per selected job, named `Resume - {Company} - {Role} - {YYYY-MM-DD}.docx` (and `.pdf`), saved to `/mnt/user-data/outputs/` and presented together via `present_files`.
 
+## Parallel dispatch
+
+Three-tier architecture — Opus orchestrator, plus N=5 resume subagents (default Sonnet, upgradable to Opus per Quality Mode). See `references/subagents.md`.
+
+Tailoring is the most LLM-expensive stage — one full pass per job. Parallelizing the queue is how we keep a 5-resume batch under three minutes instead of ten. See `references/subagents.md` for runtime detection and dispatch mechanics — this section covers what Stage 6 specifically dispatches.
+
+**Defaults (from `assets/settings_defaults.json`):**
+- `settings.models.resume_agent` — default `sonnet`
+- `settings.concurrency.resume_agents` — default `5`
+
+**Quality Mode context:** **Fast** and **Balanced** both use sonnet for tailoring (sonnet is the sweet spot for voice-matching + fabrication discipline). **Premium** bumps to opus, which produces materially better voice for senior/exec roles but is meaningfully pricier per job. Before kicking off a large Premium batch (say, more than 3 jobs), confirm with the user — "Premium mode with opus on 8 jobs will run roughly {estimate}. Go?" — don't silently burn their budget.
+
+**Claude Code path (Task tool available):** spin up one Task subagent per job, but maintain only N in flight concurrently (default 5). As each subagent completes and returns its tailored resume + match report, the orchestrator pulls the next job off the queue and dispatches another subagent, until the queue is empty.
+
+Each subagent's prompt is fully self-contained — it doesn't share conversational context with the orchestrator. Include:
+- The relevant profile excerpt (experience, evidence, skills, quantified_achievements — not the whole profile)
+- The full JD text for this specific job
+- The chosen resume template (Clean Modern / Harvard / Mirror)
+- The fabrication-check rules (reference `never-fabricate.md` — subagents MUST run `fabrication_check` before saving; no opt-out)
+- The output paths for `.docx`, `.pdf`, and match report
+
+**claude.ai fallback (no Task tool):** jobs are processed serially — the LLM generation step for tailored content is one logical unit per job, and claude.ai can't truly parallelize that across turns. However, WITHIN a single job, the rendering + validation steps (fabrication_check + docx render + pdf render) can fire as parallel tool calls in one assistant turn. That's a modest but real speedup.
+
+**Expected pace:**
+- Claude Code: ~30 seconds per job (5 in flight → a 5-job batch in ~30-45s)
+- claude.ai: ~2 minutes per job serial (5-job batch is ~10 min)
+
+Be honest in user-facing progress output about which path is running and the realistic ETA. Don't quote Claude Code speeds while running on claude.ai.
+
+**Fabrication discipline is NOT optional for speed.** Every subagent, on every path, runs `fabrication_check` before saving. See `references/never-fabricate.md` — there is no "fast mode bypass" and there will never be one.
+
 ## Pick the template
 
 Before tailoring, ask the user once (not per job):

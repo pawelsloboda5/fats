@@ -14,53 +14,11 @@ FATS is an Applicant Tracking System that scores *jobs* for fit to **you**, not 
 
 Built for people doing this with three weeks of severance, on lunch breaks, at 11pm after the kids are asleep. No auto-apply bots — you still decide where to send it. No fabricated experience — their filter sniffs that out in interviews.
 
-### Install and run
-
-```bash
-# Claude Code (Mac / Linux)
-git clone https://github.com/pawelsloboda5/fats.git ~/.claude/skills/fats
-
-# Claude Code (Windows PowerShell)
-git clone https://github.com/pawelsloboda5/fats.git $env:USERPROFILE\.claude\skills\fats
-```
-
-No terminal? → [5-minute browser install below](#-i-use-claude-in-a-browser-claudeai).
-
-Then in any Claude chat:
-
-```
-/fats                   # start a hunt (or resume one)
-/fats-healthcheck       # verify install — 13 green checks, 3 seconds
-```
-
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/pawelsloboda5/fats/releases)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/pawelsloboda5/fats/releases)
 [![License: PolyForm NC 1.0.0](https://img.shields.io/badge/License-PolyForm%20NC%201.0.0-orange.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0/)
 [![Claude](https://img.shields.io/badge/Claude-Pro%20%7C%20Max%20%7C%20Team-6B5ED7)](https://claude.ai)
 
 ---
-
-## What it does
-
-Six stages, one conversation. Each stage produces something concrete — a profile, a search plan, a CSV of live jobs, a tailored resume — that the next stage builds on. No phases that exist to feel thorough.
-
-| Stage | Output | Time |
-|---|---|---|
-| 1. **Profile** | Merges your resume, LinkedIn, portfolio, and any other context into one canonical profile | ~5 min |
-| 2. **Roles** | Proposes 3 focused + 3 adjacent target job titles for you to approve or edit | ~2 min |
-| 3. **Search plan** | Shows you exactly which boards it'll hit and what queries it'll run, before searching | ~1 min |
-| 4. **Hunt** | Pulls live postings from Greenhouse, Lever, Ashby, Workable, SmartRecruiters, and Google Jobs | ~3 min |
-| 5. **Review** | Ranked CSV with fit scores (4-axis), ghost-job flags, salary inference, matched/missing keywords | ~2 min |
-| 6. **Tailor** | Produces `.docx` + `.pdf` resumes (3 ATS-safe templates) with fabrication-proof guardrails | ~2 min/job |
-
-**Total end-to-end: ~15–30 minutes.**
-
-## Key design choices
-
-- 🚫 **Never fabricates.** Every skill, number, team size, employer, credential, and claim on your tailored resume traces back to actual evidence in your profile. A programmatic `fabrication_check` enforces this before any resume saves. Real work beats invented work.
-- 🔍 **Free data only.** No paid APIs. Public ATS JSON feeds (seeded with 187 companies) plus Google Jobs — which quietly indexes Indeed, LinkedIn, ZipRecruiter, and thousands of company career sites.
-- 👻 **Flags ghost jobs.** Scored 0-2 (low), 3-5 (medium), 6+ (high). Spots talent-network language, boilerplate JDs, staffing-agency patterns, stale postings. We've seen their tricks; we call them out.
-- 📁 **Persists across sessions.** Profile, settings, CSV, resumes — all saved to your outputs folder. Come back next week, pick up exactly where you left off.
-- 🏥 **Built-in health check.** `/fats-healthcheck` runs 13 self-tests in 3 seconds. Know the install is sound before you hand over real data.
 
 ## Install — pick your path
 
@@ -135,6 +93,30 @@ Open any Claude Code session, type `/fats-healthcheck`, expect 13 green checkmar
 - **"Upload says 'invalid format'."** — Safari auto-unzipped the file on download. Use Chrome, or right-click → **Save Link As** to keep the zip intact.
 - **"I typed `/fats` and nothing happened."** — The skill toggle is OFF, or you're in an old chat (skill changes don't apply to existing chats — start a new one).
 - **"`/fats-healthcheck` shows a failure."** — Copy the failed check's detail and [open an issue](../../issues). The skill probably still mostly works — most failed checks don't block core usage (e.g., a missing bundled font is a benign warning; PDFs still render via ReportLab's built-in Helvetica/Times fallback and `.docx` output is unaffected).
+
+## What it does
+
+Six stages, one conversation. Each stage produces something concrete — a profile, a search plan, a CSV of live jobs, a tailored resume — that the next stage builds on. No phases that exist to feel thorough.
+
+| Stage | Output | Time |
+|---|---|---|
+| 1. **Profile** | Merges your resume, LinkedIn, portfolio, and any other context into one canonical profile | ~5 min |
+| 2. **Roles** | Proposes 3 focused + 3 adjacent target job titles for you to approve or edit | ~2 min |
+| 3. **Search plan** | Shows you exactly which boards it'll hit and what queries it'll run, before searching | ~1 min |
+| 4. **Hunt** | Pulls live postings from Greenhouse, Lever, Ashby, Workable, SmartRecruiters, and Google Jobs | ~3 min |
+| 5. **Review** | Ranked CSV with fit scores (4-axis), ghost-job flags, salary inference, matched/missing keywords | ~2 min |
+| 6. **Tailor** | Produces `.docx` + `.pdf` resumes (3 ATS-safe templates) with fabrication-proof guardrails | ~2 min/job |
+
+**Total end-to-end: ~15–30 minutes.**
+
+## Key design choices
+
+- 🚫 **Never fabricates.** Every skill, number, team size, employer, credential, and claim on your tailored resume traces back to actual evidence in your profile. A programmatic `fabrication_check` enforces this before any resume saves. Real work beats invented work.
+- 🔍 **Free data only.** No paid APIs. Public ATS JSON feeds (seeded with 187 companies) plus Google Jobs — which quietly indexes Indeed, LinkedIn, ZipRecruiter, and thousands of company career sites.
+- 👻 **Flags ghost jobs.** Scored 0-2 (low), 3-5 (medium), 6+ (high). Spots talent-network language, boilerplate JDs, staffing-agency patterns, stale postings. We've seen their tricks; we call them out.
+- ⚡ **Three-tier architecture.** An Opus orchestrator runs the pipeline and enforces fabrication rules. Five Haiku subagents search in parallel. Five Sonnet subagents tailor resumes in parallel (upgradable to Opus for senior/exec roles). All configurable via `/fats-settings`. Default Quality Mode is Balanced.
+- 📁 **Persists across sessions.** Profile, settings, CSV, resumes — all saved to your outputs folder. Come back next week, pick up exactly where you left off.
+- 🏥 **Built-in health check.** `/fats-healthcheck` runs 13 self-tests in 3 seconds. Know the install is sound before you hand over real data.
 
 ## Commands
 
