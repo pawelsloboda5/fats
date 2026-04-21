@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# User artifacts — these are runtime outputs, not code
+fats-profile.json
+fats-settings.json
+fats-jobs.csv
+fats-hunt-raw.json
+fats-hunt-log.json
+fats-tailor-selection.json
+*.docx
+*.pdf
+!assets/*.pdf
+
+# Build artifacts
+fats.skill
+fats.zip

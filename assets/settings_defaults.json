@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "freshness_hours": 24,
+  "target_count": 20,
+  "boards_enabled": [
+    "greenhouse",
+    "lever",
+    "ashby",
+    "workable",
+    "smartrecruiters",
+    "google_jobs"
+  ],
+  "max_companies_per_ats": 50,
+  "locations": [],
+  "remote_preference": "hybrid_or_remote",
+  "accept_relocation": false,
+  "seniority_range": [],
+  "salary_floor": null,
+  "salary_source_ok": ["listed", "inferred"],
+  "exclude_companies": [],
+  "exclude_keywords": [],
+  "include_stretch_roles": false,
+  "user_company_list": [],
+  "resume_template": "clean_modern",
+  "auto_retry_on_failure": false,
+  "ghost_risk_accept": ["low", "medium"],
+  "last_updated": null
+}

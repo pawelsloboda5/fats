@@ -1,0 +1,219 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FATS canonical profile",
+  "description": "The merged representation of everything FATS knows about one user. Produced by Stage 1, consumed by every downstream stage.",
+  "type": "object",
+  "required": ["name", "contact", "experience", "skills", "evidence", "last_updated"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "name": {
+      "type": "string",
+      "description": "Full name as the user wants it to appear on a resume."
+    },
+    "contact": {
+      "type": "object",
+      "properties": {
+        "email": {"type": ["string", "null"]},
+        "phone": {"type": ["string", "null"]},
+        "city": {"type": ["string", "null"]},
+        "state_region": {"type": ["string", "null"]},
+        "country": {"type": ["string", "null"]},
+        "linkedin_url": {"type": ["string", "null"]},
+        "portfolio_url": {"type": ["string", "null"]},
+        "github_url": {"type": ["string", "null"]},
+        "other_urls": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "headline": {
+      "type": ["string", "null"],
+      "description": "One-line current positioning — used as default resume summary seed."
+    },
+    "summary": {
+      "type": ["string", "null"],
+      "description": "2-4 sentence narrative. Also a default summary seed."
+    },
+    "years_experience_total": {
+      "type": ["number", "null"],
+      "description": "Rounded to nearest 0.5. Sum of non-overlapping role durations."
+    },
+    "inferred_seniority": {
+      "type": ["string", "null"],
+      "enum": ["entry", "junior", "mid", "senior", "staff", "principal", "manager", "director", "vp", "c-level", null]
+    },
+    "experience": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title", "company"],
+        "properties": {
+          "title": {"type": "string"},
+          "company": {"type": "string"},
+          "location": {"type": ["string", "null"]},
+          "start": {"type": ["string", "null"], "description": "ISO date or YYYY-MM"},
+          "end": {"type": ["string", "null"], "description": "ISO date, YYYY-MM, or null if current"},
+          "current": {"type": "boolean"},
+          "bullets": {"type": "array", "items": {"type": "string"}},
+          "technologies": {"type": "array", "items": {"type": "string"}},
+          "quantified_achievements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "claim": {"type": "string"},
+                "metric_type": {"type": "string", "description": "e.g. 'percent_lift', 'revenue', 'headcount', 'time_saved'"},
+                "value": {"type": ["string", "number"]},
+                "source_bullet_idx": {"type": ["integer", "null"]}
+              }
+            }
+          }
+        }
+      }
+    },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "degree": {"type": "string"},
+          "major": {"type": ["string", "null"]},
+          "school": {"type": "string"},
+          "year": {"type": ["integer", "string", "null"]},
+          "honors": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "certifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "issuer": {"type": ["string", "null"]},
+          "year": {"type": ["integer", "string", "null"]}
+        }
+      }
+    },
+    "skills": {
+      "type": "object",
+      "properties": {
+        "technical": {"type": "array", "items": {"type": "string"}},
+        "tools": {"type": "array", "items": {"type": "string"}},
+        "soft": {"type": "array", "items": {"type": "string"}},
+        "languages": {"type": "array", "items": {"type": "string"}},
+        "domains": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "url": {"type": ["string", "null"]},
+          "technologies": {"type": "array", "items": {"type": "string"}},
+          "outcomes": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "publications_or_talks": {
+      "type": "array",
+      "items": {"type": "object"}
+    },
+    "clearances_or_licenses": {
+      "type": "array",
+      "items": {"type": "object"}
+    },
+    "preferences_hints": {
+      "type": "object",
+      "properties": {
+        "roles_mentioned": {"type": "array", "items": {"type": "string"}},
+        "industries_mentioned": {"type": "array", "items": {"type": "string"}},
+        "locations_mentioned": {"type": "array", "items": {"type": "string"}},
+        "salary_mentioned": {"type": ["number", "null"]},
+        "remote_mentioned": {"type": ["string", "null"]}
+      }
+    },
+    "target_roles": {
+      "type": "array",
+      "description": "Produced in Stage 2.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {"type": "string"},
+          "category": {"type": "string", "enum": ["focused", "adjacent", "stretch", "user_added"]},
+          "aliases": {"type": "array", "items": {"type": "string"}},
+          "role_constraints": {
+            "type": "object",
+            "properties": {
+              "industries": {"type": "array", "items": {"type": "string"}},
+              "company_size_min": {"type": ["integer", "null"]},
+              "company_size_max": {"type": ["integer", "null"]},
+              "exclude_agencies": {"type": "boolean"}
+            }
+          }
+        }
+      }
+    },
+    "job_preferences": {
+      "type": "object",
+      "properties": {
+        "locations": {"type": "array", "items": {"type": "string"}},
+        "remote_preference": {
+          "type": "string",
+          "enum": ["onsite_only", "hybrid_ok", "hybrid_or_remote", "remote_only", "any"]
+        },
+        "seniority_range": {"type": "array", "items": {"type": "string"}},
+        "accept_relocation": {"type": "boolean"},
+        "salary_floor": {"type": ["number", "null"]}
+      }
+    },
+    "resume_template": {
+      "type": "string",
+      "enum": ["clean_modern", "harvard", "mirror_user"],
+      "default": "clean_modern"
+    },
+    "source_docs": {
+      "type": "array",
+      "description": "Provenance of everything in the profile. Each source doc gets an ID that evidence references.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string", "enum": ["resume_pdf", "resume_docx", "linkedin", "github", "portfolio", "user_pasted", "cover_letter", "other"]},
+          "path_or_url": {"type": ["string", "null"]},
+          "fetched_at": {"type": "string"},
+          "fingerprint": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "description": "Traceability ledger. Every skill, tool, and quantified claim has a list of source doc IDs + location hints. Stage 6 enforces no-fabrication against this.",
+      "properties": {
+        "skills_evidence": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {"type": "string", "description": "Format: '{source_doc_id}:{location_hint}', e.g. 'resume_v2:bullet-3-of-acme-corp'"}
+          }
+        },
+        "tools_evidence": {
+          "type": "object",
+          "additionalProperties": {"type": "array", "items": {"type": "string"}}
+        },
+        "claims_evidence": {
+          "type": "object",
+          "additionalProperties": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "last_updated": {
+      "type": "string",
+      "description": "ISO timestamp."
+    }
+  }
+}
