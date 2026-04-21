@@ -30,7 +30,7 @@ Then in any Claude chat:
 
 ```
 /fats                   # start a hunt (or resume one)
-/fats-healthcheck       # verify install — 12 green checks, 3 seconds
+/fats-healthcheck       # verify install — 13 green checks, 3 seconds
 ```
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/pawelsloboda5/fats/releases)
@@ -60,7 +60,7 @@ Six stages, one conversation. Each stage produces something concrete — a profi
 - 🔍 **Free data only.** No paid APIs. Public ATS JSON feeds (seeded with 187 companies) plus Google Jobs — which quietly indexes Indeed, LinkedIn, ZipRecruiter, and thousands of company career sites.
 - 👻 **Flags ghost jobs.** Scored 0-2 (low), 3-5 (medium), 6+ (high). Spots talent-network language, boilerplate JDs, staffing-agency patterns, stale postings. We've seen their tricks; we call them out.
 - 📁 **Persists across sessions.** Profile, settings, CSV, resumes — all saved to your outputs folder. Come back next week, pick up exactly where you left off.
-- 🏥 **Built-in health check.** `/fats-healthcheck` runs 12 self-tests in 3 seconds. Know the install is sound before you hand over real data.
+- 🏥 **Built-in health check.** `/fats-healthcheck` runs 13 self-tests in 3 seconds. Know the install is sound before you hand over real data.
 
 ## Install — pick your path
 
@@ -77,11 +77,11 @@ Three ways to run FATS. Pick the one that matches how you already use Claude —
 5. Toggle **FATS** ON in your skills list.
 6. Open a new chat, type `/fats-healthcheck`, press Enter. Wait ~3 seconds.
 
-You should see 12 green checkmarks:
+You should see 13 green checkmarks:
 
 ```
 ✅ All systems go.
-Passed: 12 · Failed: 0 · Warnings: 0
+Passed: 13 · Failed: 0 · Warnings: 0
   ✓ Module imports — 5 modules imported
   ✓ Schema and asset files — 3 asset files valid
   ✓ Company seed list — 187 companies across 5 ATSes
@@ -91,12 +91,13 @@ Passed: 12 · Failed: 0 · Warnings: 0
   ✓ Dedupe → score → CSV pipeline
   ✓ Ghost-job detection
   ✓ Role proposal across job families
-  ✓ Resume rendering (3 templates)
-  ✓ PDF conversion
+  ✓ Bundled OFL fonts (EB Garamond, Carlito)
+  ✓ Resume rendering — .docx (3 templates)
+  ✓ Resume rendering — .pdf (3 templates, reportlab)
   ✓ Fabrication check (clean + tainted)
 ```
 
-If all 12 pass, type `/fats` to start your hunt.
+If all 13 pass, type `/fats` to start your hunt.
 
 ### 💻 I use Claude Code on Mac or Linux
 
@@ -106,7 +107,7 @@ If all 12 pass, type `/fats` to start your hunt.
 git clone https://github.com/pawelsloboda5/fats.git ~/.claude/skills/fats
 ```
 
-Open any Claude Code session, type `/fats-healthcheck`, expect 12 green checkmarks (same block as above).
+Open any Claude Code session, type `/fats-healthcheck`, expect 13 green checkmarks (same block as above).
 
 **No git?** Download `fats.zip` from [Releases](../../releases/latest), unzip it, and move the inner `fats/` folder into `~/.claude/skills/`. Same result.
 
@@ -118,7 +119,7 @@ Open any Claude Code session, type `/fats-healthcheck`, expect 12 green checkmar
 git clone https://github.com/pawelsloboda5/fats.git $env:USERPROFILE\.claude\skills\fats
 ```
 
-Open any Claude Code session, type `/fats-healthcheck`, expect 12 green checkmarks (same block as above).
+Open any Claude Code session, type `/fats-healthcheck`, expect 13 green checkmarks (same block as above).
 
 **No git?** Download `fats.zip` from [Releases](../../releases/latest), unzip it, and move the inner `fats/` folder into `C:\Users\<YourName>\.claude\skills\`. Same result.
 
